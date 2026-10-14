@@ -1,0 +1,3 @@
+@settings(kclVersion = "3.0")
+x = 1mm + 2deg
+result = noSuchFunction(1_)

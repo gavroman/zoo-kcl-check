@@ -1,0 +1,9 @@
+@settings(kclVersion = "3.0")
+fn makeProfile() {
+  profile = sketch(on = XY) {
+    c = circle(center = [0mm, 0mm], start = [10mm, 0mm])
+  }
+  return profile
+}
+first = makeProfile()
+second = makeProfile()

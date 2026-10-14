@@ -1,0 +1,4 @@
+@settings(kclVersion = "3.0")
+export fn addLengths(a: mm, b: mm) {
+  return a + b
+}

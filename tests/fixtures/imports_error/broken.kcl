@@ -1,0 +1,4 @@
+@settings(kclVersion = "3.0")
+export fn brokenLength() {
+  return noSuchFunction(1_)
+}

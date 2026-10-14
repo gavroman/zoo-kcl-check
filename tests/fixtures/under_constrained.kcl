@@ -1,0 +1,4 @@
+@settings(kclVersion = "3.0")
+profile = sketch(on = XY) {
+  c = circle(center = [var 0mm, var 0mm], start = [var 10mm, var 0mm])
+}

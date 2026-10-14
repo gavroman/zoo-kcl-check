@@ -1,0 +1,4 @@
+@settings(kclVersion = "3.0")
+profile = sketch(on = XY) {
+  edge = line(start = "wrong", end = [0mm, 1mm])
+}

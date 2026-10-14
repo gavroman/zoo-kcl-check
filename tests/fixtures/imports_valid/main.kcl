@@ -1,0 +1,3 @@
+@settings(kclVersion = "3.0")
+import addLengths from "lengths.kcl"
+sum = addLengths(a = 1mm, b = 2mm)

@@ -1,0 +1,8 @@
+@settings(kclVersion = "3.0")
+triangle = sketch(on = XY) {
+  a = line(start = [0mm, 0mm], end = [10mm, 0mm])
+  b = line(start = [10mm, 0mm], end = [0mm, 10mm])
+  c = line(start = [0mm, 10mm], end = [0mm, 0mm])
+}
+profile = region(segments = [triangle.a, triangle.b, triangle.c])
+solid = extrude(profile, length = 5mm)

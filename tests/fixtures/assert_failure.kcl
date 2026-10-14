@@ -1,0 +1,2 @@
+@settings(kclVersion = "3.0")
+assert(1_, isGreaterThan = 2_)

@@ -1,0 +1,21 @@
+# Full development/build environment. Also usable with pip -c requirements.lock.
+# Direct and transitive versions resolved on macOS ARM64 / CPython 3.13.
+zoo-kcl==0.3.191
+hatchling==1.32.4
+build==1.6.1
+pytest==9.1.1
+ruff==0.17.0
+PyInstaller==6.22.3
+altgraph==0.17.5
+iniconfig==2.3.1
+macholib==1.16.4 ; sys_platform == "darwin"
+packaging==26.3
+pathspec==1.1.1
+pluggy==1.6.0
+pyinstaller-hooks-contrib==2026.8
+pyproject_hooks==1.3.3
+Pygments==2.21.0
+setuptools==84.0.0
+tomlkit==0.15.1
+trove-classifiers==2026.9.21.13
+pywin32-ctypes==0.2.3 ; sys_platform == "win32"
