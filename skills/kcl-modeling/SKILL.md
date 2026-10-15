@@ -23,40 +23,32 @@ parameters, and the user's chosen model organization.
 
 ## Model structure
 
-Use the following model structure unless the user explicitly chooses another:
+Choose the structure for the intended editing workflow.
+Prefer top-level geometry when point-and-click editing is expected.
+Preserve an explicitly requested function-based model.
 
-- Use lowerCamelCase for function and variable names. Choose names that reflect
-  the geometry, specify units for dimensions, and add short comments explaining
-  the purpose of operations.
-- Keep a separate source parameter block in the entrypoint after settings and
-  imports, for example `sourceParameters`. Include only user-specified values,
-  without derived dimensions or positions. Pass controlling dimensions to functions
-  as named arguments; do not hide them inside construction code.
-- Always declare `main(parameters)` in the entrypoint: it coordinates construction
-  and placement and explicitly returns the completed bodies with `return`.
-  Call it after the function declarations: `bodies = main(parameters = sourceParameters)`.
-- Compute derived dimensions, clearances, distances, and positions in a separate
-  `deriveParameters(parameters)` function that returns an object containing the
-  results. Call it from `main`; do not put these calculations at the top level
-  or directly in `main`.
-- Separate profile creation, body construction, chamfers/fillets, and placement
-  into functions. Do not repeat identical blocks for different size variants.
-- Declare helper functions before the functions that call them: declaring them
-  later can cause an `undefined value` error during KCL execution.
-- Return each completed body from a function with an explicit `return`. Body
-  construction function names must start with the exact prefix `makeBody`,
-  for example `fn makeBodyPart(...) { ... return body }`.
-- Keep source parameters, calculation and coordination functions, and the `main`
-  call in the entrypoint. Create distinct parts and variants with separate calls
-  to construction functions, including through `map` inside `main`.
-- Validate dimensions with `assert`: positive diameters and height, outer diameter
-  greater than inner diameter, valid thicknesses and radii, and non-intersecting
-  chamfers. Preserve any existing option to disable a chamfer with `0mm`.
+- Use lowerCamelCase names. Keep user dimensions in `sourceParameters`
+  after settings and imports.
+- Compute derived dimensions, coordinates and numeric assertions in
+  `deriveParameters(parameters)` and calculation helpers. Call them
+  at the top level.
+- For point-and-click models, declare sketches, regions, extrusions,
+  fillets, booleans and placements as named top-level steps.
+  Do not create or modify geometry inside `main`, factories or callbacks.
+- Body, region and tag references must be accessible where the CAD
+  editor inserts new operations. Expose individual `Solid` results
+  rather than arrays as operation targets.
+- Validate dimensions with `assert`. Preserve existing options such
+  as `0mm` to disable fillets.
+- Use `main` and `makeBody` factories only for an explicitly chosen
+  function-based workflow. Return results explicitly and explain
+  the point-and-click editing limitations.
+- Verify the intended action in Zoo's interface before claiming
+  point-and-click editing works. Successful CLI checks and geometry
+  construction alone do not verify UI editing.
 
-These are model organization conventions, not mandatory KCL syntax.
-If sketches need to be edited with the mouse, warn the user about Zoo's limitation:
-such editing is not supported inside user-defined functions. Preserve the user's
-chosen function-based structure.
+See [point-and-click editability](https://zoo.dev/docs/kcl-lang/functions#point-and-click-editability)
+and [the components proposal](https://github.com/KittyCAD/modeling-app/issues/11849).
 
 ## Units and geometry references
 
