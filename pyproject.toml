@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zoo-kcl-check-cli"
-version = "0.1.1"
+version = "0.1.2"
 description = "Strict local checks for Zoo / KittyCAD KCL"
 readme = "README.md"
 license = "MIT"
