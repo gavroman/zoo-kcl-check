@@ -75,6 +75,15 @@ kcl-check execute main.kcl --json
 | `2` | Некорректный ввод, таймаут или сбой инструмента |
 | `130` | Прерывание пользователем |
 
+## Скиллы для агентов
+
+- [kcl-modeling](skills/kcl-modeling/SKILL.md) — правила моделирования и приёмы работы с KCL.
+- [kcl-check](skills/kcl-check/SKILL.md) — установка CLI, запуск проверок и разбор результатов.
+
+```sh
+npx skills add gavroman/zoo-kcl-check --skill kcl-modeling --skill kcl-check
+```
+
 ## Разработка
 
 [Окружение, тесты и сборка](docs/development.md).
