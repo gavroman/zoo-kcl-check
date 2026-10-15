@@ -189,6 +189,15 @@ def test_execution_warning_before_error_is_preserved():
     assert any(d["severity"] in {"error", "fatal"} for d in result["diagnostics"])
 
 
+def test_lint_syntax_error_is_source_error():
+    result = run_json("lint", FIXTURES / "syntax_error.kcl", 1)
+    diagnostic = result["diagnostics"][0]
+    assert diagnostic["severity"] == "error"
+    assert diagnostic["origin"] == "lint"
+    assert "Syntax error" in diagnostic["rendered"]
+    assert "x = [" in diagnostic["rendered"]
+
+
 def test_lint_does_not_execute_unknown_function():
     result = run_json("lint", FIXTURES / "unknown_name.kcl")
     assert result["diagnostics"] == []

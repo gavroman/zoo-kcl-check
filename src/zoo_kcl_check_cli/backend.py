@@ -80,8 +80,12 @@ class KclBackend:
     def lint(self, code: str, file: str) -> list[Diagnostic]:
         diagnostics: list[Diagnostic] = []
         try:
+            # Preserve structured syntax errors: the full linter raises a generic
+            # Exception for invalid input instead of a KclError.
+            self._module.parse_code(code)
             encoded = code.encode("utf-8")
-            for discovered in self._module.lint(code):
+            # Run all lint families while leaving automatic fixes disabled.
+            for discovered in self._module.lint_and_fix_families(code, []).unfixed_lints:
                 diagnostics.append(
                     Diagnostic(
                         severity="warning",

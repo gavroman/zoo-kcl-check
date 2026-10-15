@@ -69,7 +69,8 @@ def module(outcome=None, error=None):
         KclError=KclError,
         mock_execute=mock_execute,
         format=lambda code: code,
-        lint=lambda code: [],
+        parse_code=lambda code: None,
+        lint_and_fix_families=lambda code, families: SimpleNamespace(unfixed_lints=[]),
         calls=calls,
     )
 
@@ -198,11 +199,11 @@ def test_incomplete_sketch_report():
 def test_native_panic_and_internal_error(operation, error):
     backend_module = module(error=error)
 
-    def fail(code):
+    def fail(code, families=None):
         raise error
 
     backend_module.format = fail
-    backend_module.lint = fail
+    backend_module.lint_and_fix_families = fail
     backend = KclBackend(backend_module)
     if operation == "format":
         formatted, diagnostics = backend.format("source", "file.kcl")
@@ -230,10 +231,10 @@ def test_report_panic_preserves_execution_issues():
 def test_parse_error_preserves_full_rendering(operation):
     backend_module = module()
 
-    def fail(code):
+    def fail(code, families=None):
         raise KclError("syntax report\nwith source", False)
 
-    setattr(backend_module, operation, fail)
+    setattr(backend_module, "lint_and_fix_families" if operation == "lint" else operation, fail)
     backend = KclBackend(backend_module)
     if operation == "format":
         _, diagnostics = backend.format("x = [", "file.kcl")
@@ -246,18 +247,54 @@ def test_parse_error_preserves_full_rendering(operation):
     assert diagnostics[0].range is None
 
 
+def test_lint_parse_error_prevents_full_linter_call():
+    backend_module = module()
+    backend_module.parse_code = Mock(side_effect=KclError("syntax report\nwith source"))
+    backend_module.lint_and_fix_families = Mock()
+    diagnostics = KclBackend(backend_module).lint("x = [", "main.kcl")
+    backend_module.parse_code.assert_called_once_with("x = [")
+    backend_module.lint_and_fix_families.assert_not_called()
+    assert len(diagnostics) == 1
+    assert diagnostics[0].severity == "error"
+    assert diagnostics[0].origin == "lint"
+    assert diagnostics[0].rendered == "syntax report\nwith source"
+    assert diagnostics[0].exit_code == 1
+
+
+def test_lint_checks_all_families_without_fixes():
+    backend_module = module()
+    backend_module.lint_and_fix_families = Mock(
+        return_value=SimpleNamespace(
+            unfixed_lints=[
+                SimpleNamespace(
+                    finding=SimpleNamespace(code="Z0006", title="Additional lint family"),
+                    description="Finding from the full linter",
+                    pos=(0, 1),
+                )
+            ]
+        )
+    )
+    diagnostics = KclBackend(backend_module).lint("x = 1mm\n", "main.kcl")
+    backend_module.lint_and_fix_families.assert_called_once_with("x = 1mm\n", [])
+    assert len(diagnostics) == 1
+    assert diagnostics[0].code == "Z0006"
+    assert diagnostics[0].severity == "warning"
+
+
 def test_lint_unicode_ranges_and_overridden_findings():
     code = "// привет 😀\nBAD_NAME = 1mm\n"
     start = len("// привет 😀\n".encode())
     backend_module = module()
-    backend_module.lint = lambda source: [
-        SimpleNamespace(
-            finding=SimpleNamespace(code="identifier-case", title="Camel case"),
-            description="Use camelCase",
-            pos=(start, start + len("BAD_NAME")),
-            overridden=True,
-        )
-    ]
+    backend_module.lint_and_fix_families = lambda source, families: SimpleNamespace(
+        unfixed_lints=[
+            SimpleNamespace(
+                finding=SimpleNamespace(code="identifier-case", title="Camel case"),
+                description="Use camelCase",
+                pos=(start, start + len("BAD_NAME")),
+                overridden=True,
+            )
+        ]
+    )
     diagnostics = KclBackend(backend_module).lint(code, "/project/модель.kcl")
     assert len(diagnostics) == 1
     assert diagnostics[0].code == "identifier-case"
@@ -274,13 +311,15 @@ def test_lint_unicode_columns_within_line():
     prefix = code[: code.index("BAD_NAME")]
     start = len(prefix.encode())
     backend_module = module()
-    backend_module.lint = lambda source: [
-        SimpleNamespace(
-            finding=SimpleNamespace(code="case", title="Camel case"),
-            description="style",
-            pos=(start, start + 8),
-        )
-    ]
+    backend_module.lint_and_fix_families = lambda source, families: SimpleNamespace(
+        unfixed_lints=[
+            SimpleNamespace(
+                finding=SimpleNamespace(code="case", title="Camel case"),
+                description="style",
+                pos=(start, start + 8),
+            )
+        ]
+    )
     diagnostics = KclBackend(backend_module).lint(code, "main.kcl")
     assert diagnostics[0].range["start"] == {"line": 1, "column": len(prefix) + 1}
     assert diagnostics[0].range["end"] == {"line": 1, "column": len(prefix) + 9}
@@ -289,13 +328,15 @@ def test_lint_unicode_columns_within_line():
 @pytest.mark.parametrize("offsets", [(0, 100), (5, 1), (1, 2)])
 def test_invalid_backend_offsets_are_tool_errors(offsets):
     backend_module = module()
-    backend_module.lint = lambda source: [
-        SimpleNamespace(
-            finding=SimpleNamespace(code="case", title="Camel case"),
-            description="style",
-            pos=offsets,
-        )
-    ]
+    backend_module.lint_and_fix_families = lambda source, families: SimpleNamespace(
+        unfixed_lints=[
+            SimpleNamespace(
+                finding=SimpleNamespace(code="case", title="Camel case"),
+                description="style",
+                pos=offsets,
+            )
+        ]
+    )
     diagnostics = KclBackend(backend_module).lint("я = 1\n", "main.kcl")
     assert diagnostics[0].exit_code == 2
     assert diagnostics[0].range is None
@@ -328,8 +369,13 @@ def test_forbidden_cloud_api():
             return code
 
         @staticmethod
-        def lint(code):
-            return []
+        def parse_code(code):
+            return None
+
+        @staticmethod
+        def lint_and_fix_families(code, families):
+            assert families == []
+            return SimpleNamespace(unfixed_lints=[])
 
         @staticmethod
         async def mock_execute(path):
