@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zoo-kcl-check-cli"
-version = "0.1.2"
+version = "0.1.3"
 description = "Strict local checks for Zoo / KittyCAD KCL"
 readme = "README.md"
 license = "MIT"
@@ -28,7 +28,7 @@ packages = ["src/zoo_kcl_check_cli"]
 dev-mode-dirs = ["src"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/packaging", "/docs", "/LICENSE", "/pyproject.toml", "/README.md", "/requirements.lock"]
+include = ["/src", "/tests", "/packaging", "/scripts", "/docs", "/LICENSE", "/pyproject.toml", "/README.md", "/requirements.lock"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

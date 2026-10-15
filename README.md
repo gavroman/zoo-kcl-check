@@ -1,22 +1,22 @@
 # zoo-kcl-check-cli
 
-Локальные проверки [Zoo / KittyCAD KCL](https://zoo.dev/): форматирование,
-синтаксис, стиль, ошибки выполнения и ограничения эскизов.
-Работает без сети, Zoo-аккаунта и API-токенов.
+Local checks for [Zoo / KittyCAD KCL](https://zoo.dev/): formatting, syntax,
+style, execution errors, and sketch constraints.
+Works offline, without a Zoo account or API tokens.
 
-Выполнение использует mock CAD-движок. **Успешная проверка не подтверждает
-корректность 3D-геометрии** — её нужно проверять в Zoo.
+Execution uses a mock CAD engine. **A successful check does not validate
+3D geometry** — verify it in Zoo.
 
-## Установка
+## Installation
 
 ```sh
 pipx install zoo-kcl-check-cli
 ```
 
-Также доступны `pip install zoo-kcl-check-cli` и `uv tool install zoo-kcl-check-cli`.
-Требуется Python 3.11–3.14. [Пакет в PyPI](https://pypi.org/project/zoo-kcl-check-cli/).
+Also available via `pip install zoo-kcl-check-cli` or `uv tool install zoo-kcl-check-cli`.
+Requires Python 3.11–3.14. [Package on PyPI](https://pypi.org/project/zoo-kcl-check-cli/).
 
-## Использование
+## Usage
 
 ```sh
 kcl-check lint main.kcl
@@ -25,14 +25,14 @@ kcl-check sketches main.kcl
 kcl-check format main.kcl --write
 ```
 
-| Команда | Назначение |
+| Command | Purpose |
 |---|---|
-| `lint` | Проверка синтаксиса и стиля без выполнения |
-| `execute` | Локальное выполнение: имена, аргументы, типы, единицы измерения и `assert` |
-| `sketches` | Проверка определённости и конфликтов ограничений эскизов |
-| `format` | Форматирование: вывод кода по умолчанию, запись с `--write`, проверка с `--check` |
+| `lint` | Check syntax and style without execution |
+| `execute` | Local execution: names, arguments, types, units, and `assert` |
+| `sketches` | Check whether sketch constraints fully define sketches and whether they conflict |
+| `format` | Print formatted code by default, write with `--write`, check with `--check` |
 
-Вместо файла можно передать папку:
+You can pass a directory instead of a file:
 
 ```sh
 kcl-check lint .
@@ -41,54 +41,54 @@ kcl-check sketches .
 kcl-check format . --check
 ```
 
-`lint` и `format` обрабатывают `.kcl` рекурсивно, пропуская символические ссылки.
-`execute` и `sketches` запускают `default_file` из `project.toml` или `main.kcl`.
-Импорты соседних KCL-файлов поддерживаются.
+`lint` and `format` process `.kcl` files recursively, skipping symbolic links.
+`execute` and `sketches` run `default_file` from `project.toml` or `main.kcl`.
+Imports of neighboring KCL files are supported.
 
-Предупреждения тоже считаются неуспехом. Команда `sketches` завершается
-неуспешно при недоопределённых или конфликтующих эскизах и неполном отчёте.
+Warnings also cause failure. The `sketches` command fails for under-constrained
+or conflicting sketches and incomplete reports.
 
-Параметры каждой команды доступны через `kcl-check COMMAND --help`.
+Use `kcl-check COMMAND --help` for command options.
 
-## Вывод
+## Output
 
-По умолчанию вывод текстовый. Диагностика идёт в stderr, результаты и отчёты —
-в stdout. Ошибки движка включают фрагмент кода и указатель на проблемное место,
-если эта информация доступна.
+Output is text by default. Diagnostics go to stderr; results and reports go to
+stdout. Engine errors include a code excerpt and a pointer to the problem
+when that information is available.
 
-Для скриптов, CI и coding-агентов:
+For scripts, CI, and coding agents:
 
 ```sh
 kcl-check execute main.kcl --json
 ```
 
-`--json` возвращает один объект в stdout, в том числе при ошибках.
-Основные поля: `ok`, `exit_code`, `diagnostics`, `sketches`, `formatting`.
-Полный формат описан в [контракте результата](docs/development.md#контракт-результата).
+`--json` returns one object in stdout, including on failure.
+Main fields: `ok`, `exit_code`, `diagnostics`, `sketches`, `formatting`.
+See the [result contract](docs/development.md#result-contract) for the full format.
 
-Все команды поддерживают `--timeout SECONDS`; по умолчанию — 60 секунд на всю команду.
+All commands support `--timeout SECONDS`; the default is 60 seconds for the entire command.
 
-| Код завершения | Значение |
+| Exit code | Meaning |
 |---|---|
-| `0` | Проверка прошла |
-| `1` | Диагностика KCL, проблема ограничений или отличие формата при `--check` |
-| `2` | Некорректный ввод, таймаут или сбой инструмента |
-| `130` | Прерывание пользователем |
+| `0` | Check passed |
+| `1` | KCL diagnostics, constraint problems, or formatting differences with `--check` |
+| `2` | Invalid input, timeout, or tool failure |
+| `130` | Interrupted by the user |
 
-## Скиллы для агентов
+## Agent skills
 
-- [kcl-modeling](skills/kcl-modeling/SKILL.md) — правила моделирования и приёмы работы с KCL.
-- [kcl-check](skills/kcl-check/SKILL.md) — установка CLI, запуск проверок и разбор результатов.
+- [kcl-modeling](https://github.com/gavroman/zoo-kcl-check/blob/main/skills/kcl-modeling/SKILL.md) — modeling rules and KCL techniques.
+- [kcl-check](https://github.com/gavroman/zoo-kcl-check/blob/main/skills/kcl-check/SKILL.md) — CLI installation, running checks, and interpreting results.
 
 ```sh
 npx skills add gavroman/zoo-kcl-check --skill kcl-modeling --skill kcl-check
 ```
 
-## Разработка
+## Development
 
-[Окружение, тесты и сборка](docs/development.md).
-Ошибки и предложения — в [GitHub Issues](https://github.com/gavroman/zoo-kcl-check/issues).
+[Setup, tests, and builds](docs/development.md).
+Report bugs and suggestions in [GitHub Issues](https://github.com/gavroman/zoo-kcl-check/issues).
 
-## Лицензия
+## License
 
 [MIT](LICENSE).

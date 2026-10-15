@@ -111,7 +111,7 @@ the tool fails repeatedly, report the blocker instead of retrying indefinitely.
 Installation, commands, result formats, and Zoo CLI usage are covered by the
 [kcl-check](https://github.com/gavroman/zoo-kcl-check/blob/main/skills/kcl-check/SKILL.md)
 skill. If it is installed, read it before running checks. If it is unavailable,
-use the [CLI README](https://github.com/gavroman/zoo-kcl-check) and `kcl-check COMMAND --help`.
+use `kcl-check COMMAND --help`.
 
 `kcl-check` uses a mock engine: success does not confirm real B-Rep geometry
 construction, boolean operations, or fillets. Full construction verification

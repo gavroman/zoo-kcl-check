@@ -36,8 +36,7 @@ uv tool install zoo-kcl-check-cli
 Use one installation method. Python 3.11–3.14 is required; with uv, add
 `--python 3.13` to select an interpreter explicitly. Do not reinstall a working CLI.
 If no manager or compatible Python is available, ask the user how to install it.
-See the [kcl-check README](https://github.com/gavroman/zoo-kcl-check) for current
-installation methods. If installation is blocked, explain why and list the checks
+If installation is blocked, explain why and list the checks
 that were not performed. Do not substitute cloud checks for unavailable local
 checks without the user's permission.
 
@@ -125,7 +124,6 @@ remaining limitation.
 
 ## References
 
-- [kcl-check: installation and commands](https://github.com/gavroman/zoo-kcl-check).
-- [JSON contract](https://github.com/gavroman/zoo-kcl-check/blob/main/docs/development.md#контракт-результата).
+- [JSON contract](https://github.com/gavroman/zoo-kcl-check/blob/main/docs/development.md#result-contract).
 - [Zoo CLI: installation, authentication, and commands](https://zoo.dev/docs/developer-tools/cli/manual).
 - [Modeling rules](https://github.com/gavroman/zoo-kcl-check/blob/main/skills/kcl-modeling/SKILL.md).
